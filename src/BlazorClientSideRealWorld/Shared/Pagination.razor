@@ -1,0 +1,57 @@
+﻿@if ((PageSize == 0 ? 1 : TotalArticles/PageSize) > 1)
+{
+    <ul class="pagination">
+        @for (int i = 1; i <= (PageSize == 0 ? 1 : TotalArticles/PageSize); i++)
+        {
+            var buttonNumber = i;
+
+            <li class="@(buttonNumber == CurrentPage ? "page-item active" : "page-item")">
+                <button type="button" class="page-link" onclick="@(async () => await ChangePageAsync(buttonNumber))">@buttonNumber</button>
+            </li>
+        }
+    </ul>
+}
+
+@functions {
+    [Parameter]
+    private int TotalArticles { get; set; }
+
+    [Parameter]
+    private int PageSize { get; set; }
+
+    [Parameter]
+    private int CurrentPage { get; set; }
+
+    [Parameter]
+    private EventCallback<int> CurrentPageChanged { get; set; }
+
+    [Parameter]
+    private EventCallback<int> OnPageClicked { get; set; }
+        
+    private async Task ChangePageAsync(int page)
+    {
+        Console.WriteLine("Change page to " + page.ToString());
+        CurrentPage = page;
+        await OnPageClicked.InvokeAsync(page);
+        StateHasChanged();
+    }
+
+    protected override void OnInit()
+    {
+        base.OnInit();
+
+        if (PageSize < 10)
+        {
+            PageSize = 10;
+        }
+        
+        if (CurrentPage < 1)
+        {
+            CurrentPage = 1;
+        }
+        else if (CurrentPage > (PageSize == 0 ? 1 : TotalArticles/PageSize))
+        {
+            CurrentPage = (PageSize == 0 ? 1 : TotalArticles/PageSize);
+        }
+    }
+}

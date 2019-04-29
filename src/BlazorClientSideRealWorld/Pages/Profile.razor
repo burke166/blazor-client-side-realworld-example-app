@@ -1,0 +1,169 @@
+﻿@page "/profile/{Username}"
+@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@inject ProfilesService profilesApi
+@inject ArticlesService articlesApi
+@inject StateService state
+@inject IUriHelper uriHelper
+@inject IJSRuntime js
+
+<div class="profile-page">
+    <div class="user-info">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-md-10 offset-md-1">
+                    <img src="@profile.image" class="user-img" />
+                    <h4>@Username</h4>
+                    <p>
+                        @profile.bio
+                    </p>
+                    @if (Username != state.User.Username)
+                    {
+                    <button class="@(profile.following ? "btn btn-sm btn-secondary action-btn" : "btn btn-sm btn-outline-secondary action-btn")" type="button" onclick="@Follow">
+                        <i class="ion-plus-round"></i>
+                        &nbsp;
+                        @(profile.following ? "Unfollow" : "Follow")
+                        @Username
+                    </button>
+                    }
+                    else
+                    {
+                    <NavLink class="btn btn-sm btn-outline-secondary action-btn" href="/settings">
+                        <i class="ion-gear-a"></i>&nbsp;Edit Profile Settings
+                    </NavLink>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-10 offset-md-1">
+                <div class="articles-toggle">
+                    <ul class="nav nav-pills outline-active">
+                        <li class="nav-item">
+                            <button type="button" class="@($"nav-link {PostsState}")" onclick="@DisplayArticlesAsync">My Posts</button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="@($"nav-link {FavoritedState}")" onclick="@DisplayFavoritesAsync">Favorited Posts</button>
+                        </li>
+                    </ul>
+                </div>
+                <ArticleList Articles=@articles />
+                <Pagination TotalArticles=@articlesCount PageSize="10" bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions
+{
+    [Parameter]
+    public string Username { get; set; }
+
+    ProfileModel profile = new ProfileModel();
+    IEnumerable<ArticleModel> articles = null;
+    SelectedTab selectedTab;
+
+    int articlesCount;
+    int currentPage = 1;
+
+
+    private string FavoritedState => selectedTab == SelectedTab.FavoritedPosts ? "active" : "";
+    private string PostsState => selectedTab == SelectedTab.MyPosts ? "active" : "";
+
+    protected override async Task OnInitAsync()
+    {
+        await DisplayProfileAsync();
+        await DisplayArticlesAsync();
+    }
+
+    private async Task DisplayProfileAsync()
+    {
+        var response = await profilesApi.GetAsync(Username);
+        if (response != null && response.HasSuccessStatusCode)
+        {
+            profile = response.Value?.Profile;
+        }
+        else
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+        }
+    }
+
+    async Task DisplayResponseAsync(ApiResponse<ArticlesResponse> response, bool scrollToTop)
+    {
+        if (response != null && response.HasSuccessStatusCode)
+        {
+            articles = response.Value?.Articles;
+            articlesCount = response.Value?.ArticlesCount ?? 0;
+            if (scrollToTop)
+            {
+                await js.InvokeAsync<bool>("RealWorld.scrollToTop");
+            }
+        }
+        else
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+        }
+    }
+
+    private async Task DisplayArticlesAsync()
+    {
+        var response = await articlesApi.GetByAuthorAsync(Username);
+        await DisplayResponseAsync(response, false);
+    }
+
+    private async Task DisplayFavoritesAsync()
+    {
+        var response = await articlesApi.GetFavoritedAsync(Username);
+        await DisplayResponseAsync(response, false);
+    }
+
+    async Task SetPage(int page)
+    {
+        currentPage = page;
+        int offset = (currentPage - 1) * 10;
+        ApiResponse<ArticlesResponse> response;
+
+        if (selectedTab == SelectedTab.MyPosts)
+        {
+            response = await articlesApi.GetByAuthorAsync(Username, offset);
+        }
+        else
+        {
+            response = await articlesApi.GetFavoritedAsync(Username, offset);
+        }
+        await DisplayResponseAsync(response, true);
+    }
+
+    async Task Follow()
+    {
+        bool response = profile.following ? await articlesApi.UnfavoriteAsync(Username) : await articlesApi.FavoriteAsync(Username);
+
+        if (response)
+        {
+            profile.following = !profile.following;
+        }
+    }
+
+    enum SelectedTab
+    {
+        MyPosts,
+        FavoritedPosts
+    }
+}

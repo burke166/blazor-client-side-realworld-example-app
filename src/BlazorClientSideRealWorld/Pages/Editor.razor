@@ -1,0 +1,113 @@
+﻿@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@page "/editor"
+@page "/editor/{Slug}"
+@inject ArticlesService articlesApi
+@inject IUriHelper uriHelper
+
+@if (article != null)
+{
+    <div class="editor-page">
+        <div class="container page">
+            <div class="row">
+
+                <div class="col-md-10 offset-md-1 col-xs-12">
+                    <ErrorMessages Errors=@errors />
+                    <form>
+                        <fieldset>
+                            <fieldset class="form-group">
+                                <input type="text" class="form-control form-control-lg" placeholder="Article Title" bind="@article.Title" />
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <input type="text" class="form-control" placeholder="What's this article about?" bind="@article.Description" />
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <textarea class="form-control" rows="8" placeholder="Write your article (in markdown)" bind="@article.Body">@article.Body</textarea>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <input type="text" class="form-control" placeholder="Enter tags" bind="@tagString" /><div class="tag-list"></div>
+                            </fieldset>
+                            <button class="btn btn-lg pull-xs-right btn-primary" type="button" onclick="@Submit">
+                                Publish Article
+                            </button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@functions
+{
+    [Parameter]
+    public string Slug { get; set; }
+
+    ErrorsModel errors = new ErrorsModel();
+
+    ArticleModel article = null;
+    string tagString = "";
+
+    protected override async Task OnInitAsync()
+    {
+        if (string.IsNullOrEmpty(Slug))
+        {
+            article = new ArticleModel();
+        }
+        else
+        {
+            var response = await articlesApi.GetAsync(Slug);
+            DisplayArticle(response);
+        }
+    }
+
+    private void DisplayArticle(ApiResponse<ArticleResponse> response)
+    {
+        if (response != null && response.HasSuccessStatusCode)
+        {
+            article = response.Value?.Article;
+        }
+        else
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+        }
+    }
+
+    async Task Submit()
+    {
+        article.TagList = tagString.Split(' ');
+        var response = await articlesApi.SaveAsync(article);
+
+        if (response != null && response.HasSuccessStatusCode)
+        {
+            var postedArticle = response.Value?.Article;
+            if (postedArticle != null)
+            {
+                uriHelper.NavigateTo($"/article/{postedArticle.Slug}");
+            }
+        }
+        else
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+
+            if (response.Errors != null)
+            {
+                errors = response.Errors;
+            }
+        }
+    }
+}

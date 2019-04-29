@@ -1,0 +1,176 @@
+﻿@page "/"
+@implements IDisposable
+@using BlazorClientSideRealWorld.Models;
+@using BlazorClientSideRealWorld.Services;
+@inject IUriHelper uriHelper
+@inject ArticlesService articlesApi
+@inject TagsService tagsApi
+@inject UserService userApi
+@inject StateService state
+@inject IJSRuntime js
+
+    <div class="home-page">
+        @if (!state.IsSignedIn)
+    {
+        <div class="banner">
+            <div class="container">
+                <h1 class="logo-font">conduit</h1>
+                <p>A place to share your knowledge.</p>
+            </div>
+        </div>
+    }
+        <div class="container page">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="feed-toggle">
+                        <ul class="nav nav-pills outline-active">
+                            <li class="nav-item">
+                                <a href="" class="@($"nav-link {FeedState}")" onclick="@YourFeedAsync">Your Feed</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="@($"nav-link {GlobalState}")" onclick="@GlobalFeedAsync">Global Feed</a>
+                            </li>
+                            @if (selectedTab == SelectedTab.Tag)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link active"><i class="ion-pound"></i> @selectedTag</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <ArticleList Articles=@articles />
+                    <Pagination TotalArticles=@articlesCount PageSize="10" bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
+                </div>
+                <div class="col-md-3">
+                    <div class="sidebar">
+                        <p>Popular Tags</p>
+                        <div class="tag-list">
+                            @if (tags == null)
+                        {
+                            <text>Loading tags...</text>
+                        }
+                        else
+                        {
+                            foreach (var tag in tags)
+                            {
+                            <a href="" class="tag-pill tag-default" onclick="@(() => SelectTag(tag))">@tag</a>
+                            }
+                        }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@functions {
+        IEnumerable<ArticleModel> articles;
+        IEnumerable<string> tags;
+        int articlesCount;
+        int currentPage = 1;
+        SelectedTab selectedTab;
+        string selectedTag;
+
+        string FeedState
+    {
+            get
+        {
+                if (!state.IsSignedIn) { return "disabled" ; }
+                if (selectedTab == SelectedTab.Feed) { return "active"; }
+                return "";
+            }
+        }
+
+        string GlobalState => selectedTab == SelectedTab.Global ? "active" : "";
+
+    protected override async Task OnInitAsync()
+    {
+        state.OnUserChange += Update;
+        await GlobalFeedAsync();
+        tags = await tagsApi.GetAllAsync();
+    }
+
+    public void Dispose()
+    {
+        state.OnUserChange -= Update;
+    }
+
+    void Update()
+    {
+        StateHasChanged();
+    }
+
+    async Task DisplayResponseAsync(ApiResponse<ArticlesResponse> response, bool scrollToTop)
+    {
+        if (response != null && response.HasSuccessStatusCode)
+        {
+            articles = response.Value?.Articles;
+            articlesCount = response.Value?.ArticlesCount ?? 0;
+            if (scrollToTop)
+            {
+                await js.InvokeAsync<bool>("RealWorld.scrollToTop");
+            }
+        }
+        else
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                uriHelper.NavigateTo("/signin");
+            }
+        }
+    }
+
+    async Task YourFeedAsync()
+    {
+        selectedTab = SelectedTab.Feed;
+        var response = await articlesApi.GetFeedAsync(0);
+        await DisplayResponseAsync(response, false);
+    }
+
+    async Task GlobalFeedAsync()
+    {
+        selectedTab = SelectedTab.Global;
+        var response = await articlesApi.GetArticlesAsync(0);
+        await DisplayResponseAsync(response, false);
+    }
+
+    async Task SelectTag(string tag)
+    {
+        selectedTab = SelectedTab.Tag;
+        selectedTag = tag;
+        var response = await articlesApi.GetByTagAsync(tag, 0);
+        await DisplayResponseAsync(response, false);
+    }
+
+    async Task SetPage(int page)
+    {
+        currentPage = page;
+        int offset = (currentPage - 1) * 10;
+        ApiResponse<ArticlesResponse> response;
+
+        if (selectedTab == SelectedTab.Feed)
+        {
+            response = await articlesApi.GetArticlesAsync(offset);
+        }
+        else if (selectedTab == SelectedTab.Tag)
+        {
+            response = await articlesApi.GetByTagAsync(selectedTag, offset);
+        }
+        else
+        {
+            response = await articlesApi.GetArticlesAsync(offset);
+        }
+        await DisplayResponseAsync(response, true);
+    }
+
+    enum SelectedTab
+    {
+        Feed,
+        Global,
+        Tag
+    }
+}

@@ -1,0 +1,82 @@
+﻿@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@inject ArticlesService articlesApi
+
+@if (Articles == null)
+{
+<div class="article-preview">
+    Loading articles...
+</div>
+}
+else if (Articles.Count() == 0)
+{
+<div class="article-preview">
+    No articles here... yet.
+</div>
+}
+else
+{
+    foreach (var article in Articles)
+    {
+        var date = article.CreatedAt;
+
+        <div class="article-preview">
+            <div class="article-meta">
+                <a href="profile.html"><img src="@article.Author.Image" /></a>
+                <div class="info">
+                    <a href="/profile/@article.Author.Username" class="author">@article.Author.Username</a>
+                    <span class="date">@String.Format("{0:MMMM} {1}", date, Ordinal(date.Day))</span>
+                </div>
+                <button class="@(article.Favorited ? "btn btn-sm btn-primary pull-xs-right" : "btn btn-sm btn-outline-primary pull-xs-right")" type="button" onclick="@(e => Favorite(article))">
+                    <i class="ion-heart"></i> @article.FavoritesCount
+                </button>
+            </div>
+            <a href="/article/@article.Slug" class="preview-link">
+                <h1>@article.Title</h1>
+                <p>@article.Description</p>
+                <span>Read more...</span>
+            </a>
+        </div>
+    }
+}
+
+@functions {
+    [Parameter]
+    IEnumerable<ArticleModel> Articles { get; set; }
+
+    async Task Favorite(ArticleModel article)
+    {
+        bool response = article.Favorited ? await articlesApi.UnfavoriteAsync(article.Slug) : await articlesApi.FavoriteAsync(article.Slug);
+
+        if (response)
+        {
+            if (article.Favorited)
+            {
+                article.FavoritesCount--;
+            }
+            else
+            {
+                article.FavoritesCount++;
+            }
+            article.Favorited = !article.Favorited;
+        }
+    }
+
+    static string Ordinal(int number)
+    {
+        var work = number.ToString();
+        if ((number % 100) == 11 || (number % 100) == 12 || (number % 100) == 13)
+        {
+            return work + "th";
+        }
+
+        switch (number % 10)
+        {
+            case 1: work += "st"; break;
+            case 2: work += "nd"; break;
+            case 3: work += "rd"; break;
+            default: work += "th"; break;
+        }
+        return work;
+    }
+}

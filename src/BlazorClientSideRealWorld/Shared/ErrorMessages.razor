@@ -1,0 +1,41 @@
+﻿@using BlazorClientSideRealWorld.Models
+
+<ul class="error-messages">
+    @foreach (var error in Errors?.Username ?? new string[0])
+    {
+        <li>The username @error.</li>
+    }
+    @foreach (var error in Errors?.Email ?? new string[0])
+    {
+        <li>The email address @error.</li>
+    }
+    @foreach (var error in Errors?.Password ?? new string[0])
+    {
+        <li>The password @error.</li>
+    }
+    @foreach (var error in Errors?.Title ?? new string[0])
+    {
+        <li>The title @error.</li>
+    }
+    @foreach (var error in Errors?.Description ?? new string[0])
+    {
+        <li>The description @error.</li>
+    }
+    @foreach (var error in Errors?.Body ?? new string[0])
+    {
+        <li>The article text @error.</li>
+    }
+    @foreach (var error in Errors?.EmailOrPassword ?? new string[0])
+    {
+        <li>The email or password @error.</li>
+    }
+    @foreach (var error in Errors?.Other ?? new string[0])
+    {
+        <li>An error has occurred: @error.</li>
+    }
+</ul>
+
+@functions {
+    [Parameter]
+    ErrorsModel Errors { get; set; }
+}
