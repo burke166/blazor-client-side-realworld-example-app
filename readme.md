@@ -6,7 +6,7 @@
 ### [Demo](https://github.com/gothinkster/realworld)&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
 
 
-This codebase was created to demonstrate a fully fledged fullstack application built with Server-Side Blazor including CRUD operations, authentication, routing, pagination, and more.
+This codebase was created to demonstrate a fully fledged fullstack application built with Client-Side Blazor including CRUD operations, authentication, routing, pagination, and more.
 
 We've gone to great lengths to adhere to the Blazor community styleguides & best practices.
 
