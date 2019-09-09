@@ -14,7 +14,7 @@
     }
 
     [Parameter]
-    protected string Content
+    public string Content
     {
         get => _content;
         set
@@ -28,7 +28,7 @@
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var html = Markdig.Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+            var html = Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
             var sanitizedHtml = Sanitizer.Sanitize(html);
             return new MarkupString(sanitizedHtml);
         }

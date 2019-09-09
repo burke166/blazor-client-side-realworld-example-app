@@ -1,8 +1,7 @@
 ﻿@page "/"
 @implements IDisposable
-@using BlazorClientSideRealWorld.Models;
-@using BlazorClientSideRealWorld.Services;
-@inject IUriHelper uriHelper
+
+@inject NavigationManager uriHelper
 @inject ArticlesService articlesApi
 @inject TagsService tagsApi
 @inject UserService userApi
@@ -25,10 +24,10 @@
                     <div class="feed-toggle">
                         <ul class="nav nav-pills outline-active">
                             <li class="nav-item">
-                                <a href="" class="@($"nav-link {FeedState}")" onclick="@YourFeedAsync">Your Feed</a>
+                                <a href="" class="@($"nav-link {FeedState}")" @onclick="@YourFeedAsync">Your Feed</a>
                             </li>
                             <li class="nav-item">
-                                <a href="" class="@($"nav-link {GlobalState}")" onclick="@GlobalFeedAsync">Global Feed</a>
+                                <a href="" class="@($"nav-link {GlobalState}")" @onclick="@GlobalFeedAsync">Global Feed</a>
                             </li>
                             @if (selectedTab == SelectedTab.Tag)
                             {
@@ -39,7 +38,7 @@
                         </ul>
                     </div>
                     <ArticleList Articles=@articles />
-                    <Pagination TotalArticles=@articlesCount PageSize="10" bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
+                    <Pagination TotalArticles=@articlesCount PageSize="10" @bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
                 </div>
                 <div class="col-md-3">
                     <div class="sidebar">
@@ -53,7 +52,7 @@
                         {
                             foreach (var tag in tags)
                             {
-                            <a href="" class="tag-pill tag-default" onclick="@(() => SelectTag(tag))">@tag</a>
+                            <a href="" class="tag-pill tag-default" @onclick="@(() => SelectTag(tag))">@tag</a>
                             }
                         }
                         </div>
@@ -83,7 +82,7 @@
 
         string GlobalState => selectedTab == SelectedTab.Global ? "active" : "";
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         state.OnUserChange += Update;
         await GlobalFeedAsync();

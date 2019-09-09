@@ -1,5 +1,4 @@
-﻿@using BlazorClientSideRealWorld.Models
-
+﻿
 <ul class="error-messages">
     @foreach (var error in Errors?.Username ?? new string[0])
     {
@@ -37,5 +36,5 @@
 
 @functions {
     [Parameter]
-    ErrorsModel Errors { get; set; }
+    public ErrorsModel Errors { get; set; }
 }
