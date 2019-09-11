@@ -19,7 +19,7 @@ This app is constructed with a minimal amount of extra Nuget packages. Basic sta
 
 # Getting started
 
-* [Download and install .NET Core 3.0 Preview 4](https://dotnet.microsoft.com/download/dotnet-core/3.0)
+* [Download and install .NET Core 3.0 Preview 9](https://dotnet.microsoft.com/download/dotnet-core/3.0)
 * dotnet build
 * dotnet run
 
