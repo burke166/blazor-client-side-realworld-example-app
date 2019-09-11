@@ -1,145 +1,144 @@
 ﻿@page "/article/{Slug}"
 @implements IDisposable
-@using BlazorClientSideRealWorld.Models
-@using BlazorClientSideRealWorld.Services
-@inject IUriHelper uriHelper
+
+@inject NavigationManager uriHelper
 @inject StateService state
 @inject CommentsService commentsApi
 @inject ArticlesService articlesApi
 
 @if (article != null)
 {
-<div class="article-page">
+    <div class="article-page">
 
-    <div class="banner">
-        <div class="container">
-            <h1>@article.Title</h1>
+        <div class="banner">
+            <div class="container">
+                <h1>@article.Title</h1>
 
-            <div class="article-meta">
-                <a href="/profile/@article.Author.Username"><img src="@article.Author.Image" /></a>
-                <div class="info">
-                    <a href="/profile/@article.Author.Username" class="author">@article.Author.Username</a>
-                    <span class="date">@article.CreatedAt.ToLongDateString()</span>
-                </div>
-                @if (article.Author.Username == state.User.Username)
-                {
-                <a class="btn btn-outline-secondary btn-sm" href="/editor/@Slug">
-                    <i class="ion-edit"></i>
-                    &nbsp;
-                    Edit Article
-                </a>
-                <text>&nbsp; &nbsp;</text>
-                <button class="btn btn-outline-danger btn-sm" onclick="@DeleteArticle">
-                    <i class="ion-trash-a"></i>
-                    &nbsp;
-                    Delete Article
-                </button>
-                }
-                else
-                {
-                <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" onclick="@Follow">
-                    <i class="ion-plus-round"></i>
-                    &nbsp;
-                    @(article.Author.Following ? "Unfollow" : "Follow")
-                    @article.Author.Username
-                </button>
-                <text>&nbsp; &nbsp;</text>
-                <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" onclick="@Favorite">
-                    <i class="ion-heart"></i>
-                    &nbsp;
-                    @(article.Favorited ? "Unfavorite" : "Favorite")
-                    Article <span class="ifunter">(@article.FavoritesCount)</span>
-                </button>
-                }
-            </div>
-
-        </div>
-    </div>
-
-    <div class="container page">
-
-        <div class="row article-content">
-            <div id="article-body" class="col-md-12">
-                <MarkdownView Content="@article.Body" />
-            </div>
-        </div>
-
-        <hr />
-
-        <div class="article-actions">
-            <div class="article-meta">
-                <a href="profile.html"><img src="@article.Author.Image" /></a>
-                <div class="info">
-                    <a href="" class="author">@article.Author.Username</a>
-                    <span class="date">@article.CreatedAt.ToLongDateString()</span>
-                </div>
-
-                <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" onclick="@Follow">
-                    <i class="ion-plus-round"></i>
-                    &nbsp;
-                    @(article.Author.Following ? "Unfollow" : "Follow")
-                    @article.Author.Username
-                </button>
-                &nbsp;
-                <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" onclick="@Favorite">
-                    <i class="ion-heart"></i>
-                    &nbsp;
-                    @(article.Favorited ? "Unfavorite" : "Favorite")
-                    Article <span class="ifunter">(@article.FavoritesCount)</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="row">
-
-            <div class="col-xs-12 col-md-8 offset-md-2">
-
-                <ErrorMessages Errors=@errors />
-
-                @if (state.IsSignedIn)
-                {
-                    <form class="card comment-form">
-                        <div class="card-block">
-                            <textarea class="form-control" placeholder="Write a comment..." rows="3" bind="@newComment.Body">@newComment.Body</textarea>
-                        </div>
-                        <div class="card-footer">
-                            <img src="@state.User.Image" class="comment-author-img" />
-                            <button class="btn btn-sm btn-primary" type="button" onclick="@Submit">
-                                Post Comment
-                            </button>
-                        </div>
-                    </form>
-                }
-                else
-                {
-                    <p show-authed="false" style="display: inherit;">
-                        <NavLink href="/signin">Sign in</NavLink> or <NavLink href="/signup">sign up</NavLink> to add comments on this article.
-                    </p>
-                }
-
-                @if (comments != null || comments.Count() > 0)
-                {
-                    @foreach (CommentModel comment in comments)
+                <div class="article-meta">
+                    <a href="/profile/@article.Author.Username"><img src="@article.Author.Image" /></a>
+                    <div class="info">
+                        <a href="/profile/@article.Author.Username" class="author">@article.Author.Username</a>
+                        <span class="date">@article.CreatedAt.ToLongDateString()</span>
+                    </div>
+                    @if (article.Author.Username == state.User.Username)
                     {
-                        <div class="card">
+                        <a class="btn btn-outline-secondary btn-sm" href="/editor/@Slug">
+                            <i class="ion-edit"></i>
+                            &nbsp;
+                            Edit Article
+                        </a>
+                        <text>&nbsp; &nbsp;</text>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@DeleteArticle">
+                            <i class="ion-trash-a"></i>
+                            &nbsp;
+                            Delete Article
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" @onclick="@Follow">
+                            <i class="ion-plus-round"></i>
+                            &nbsp;
+                            @(article.Author.Following ? "Unfollow" : "Follow")
+                            @article.Author.Username
+                        </button>
+                        <text>&nbsp; &nbsp;</text>
+                        <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" @onclick="@Favorite">
+                            <i class="ion-heart"></i>
+                            &nbsp;
+                            @(article.Favorited ? "Unfavorite" : "Favorite")
+                            Article <span class="ifunter">(@article.FavoritesCount)</span>
+                        </button>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container page">
+
+            <div class="row article-content">
+                <div id="article-body" class="col-md-12">
+                    <MarkdownView Content="@article.Body" />
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="article-actions">
+                <div class="article-meta">
+                    <a href="profile.html"><img src="@article.Author.Image" /></a>
+                    <div class="info">
+                        <a href="" class="author">@article.Author.Username</a>
+                        <span class="date">@article.CreatedAt.ToLongDateString()</span>
+                    </div>
+
+                    <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" @onclick="@Follow">
+                        <i class="ion-plus-round"></i>
+                        &nbsp;
+                        @(article.Author.Following ? "Unfollow" : "Follow")
+                        @article.Author.Username
+                    </button>
+                    &nbsp;
+                    <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" @onclick="@Favorite">
+                        <i class="ion-heart"></i>
+                        &nbsp;
+                        @(article.Favorited ? "Unfavorite" : "Favorite")
+                        Article <span class="ifunter">(@article.FavoritesCount)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-xs-12 col-md-8 offset-md-2">
+
+                    <ErrorMessages Errors=@errors />
+
+                    @if (state.IsSignedIn)
+                    {
+                        <form class="card comment-form">
                             <div class="card-block">
-                                <p class="card-text"><MarkdownView Content="@comment.Body" /></p>
+                                <textarea class="form-control" placeholder="Write a comment..." rows="3" @bind="@newComment.Body">@newComment.Body</textarea>
                             </div>
                             <div class="card-footer">
-                                <a href="" class="comment-author">
-                                    <img src="@comment.Author.Image" class="comment-author-img" />
-                                </a>
-                                &nbsp;
-                                <a href="" class="comment-author">@comment.Author.Username</a>
-                                <span class="date-posted">@comment.CreatedAt.ToShortDateString()</span>
+                                <img src="@state.User.Image" class="comment-author-img" />
+                                <button class="btn btn-sm btn-primary" type="button" @onclick="@Submit">
+                                    Post Comment
+                                </button>
                             </div>
-                        </div>
+                        </form>
                     }
-                }
+                    else
+                    {
+                        <p show-authed="false" style="display: inherit;">
+                            <NavLink href="/signin">Sign in</NavLink> or <NavLink href="/signup">sign up</NavLink> to add comments on this article.
+                        </p>
+                    }
+
+                    @if (comments != null || comments.Count() > 0)
+                    {
+                        @foreach (CommentModel comment in comments)
+                        {
+                            <div class="card">
+                                <div class="card-block">
+                                    <p class="card-text"><MarkdownView Content="@comment.Body" /></p>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="" class="comment-author">
+                                        <img src="@comment.Author.Image" class="comment-author-img" />
+                                    </a>
+                                    &nbsp;
+                                    <a href="" class="comment-author">@comment.Author.Username</a>
+                                    <span class="date-posted">@comment.CreatedAt.ToShortDateString()</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
             </div>
         </div>
     </div>
-</div>
 }
 
 @functions
@@ -152,7 +151,7 @@
     List<CommentModel> comments = null;
     ErrorsModel errors = new ErrorsModel();
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         state.OnUserChange += Update;
 

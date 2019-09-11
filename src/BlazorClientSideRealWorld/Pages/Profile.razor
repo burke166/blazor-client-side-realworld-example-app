@@ -1,10 +1,9 @@
 ﻿@page "/profile/{Username}"
-@using BlazorClientSideRealWorld.Models
-@using BlazorClientSideRealWorld.Services
+
 @inject ProfilesService profilesApi
 @inject ArticlesService articlesApi
 @inject StateService state
-@inject IUriHelper uriHelper
+@inject NavigationManager uriHelper
 @inject IJSRuntime js
 
 <div class="profile-page">
@@ -19,7 +18,7 @@
                     </p>
                     @if (Username != state.User.Username)
                     {
-                    <button class="@(profile.following ? "btn btn-sm btn-secondary action-btn" : "btn btn-sm btn-outline-secondary action-btn")" type="button" onclick="@Follow">
+                    <button class="@(profile.following ? "btn btn-sm btn-secondary action-btn" : "btn btn-sm btn-outline-secondary action-btn")" type="button" @onclick="@Follow">
                         <i class="ion-plus-round"></i>
                         &nbsp;
                         @(profile.following ? "Unfollow" : "Follow")
@@ -42,15 +41,15 @@
                 <div class="articles-toggle">
                     <ul class="nav nav-pills outline-active">
                         <li class="nav-item">
-                            <button type="button" class="@($"nav-link {PostsState}")" onclick="@DisplayArticlesAsync">My Posts</button>
+                            <button type="button" class="@($"nav-link {PostsState}")" @onclick="@DisplayArticlesAsync">My Posts</button>
                         </li>
                         <li class="nav-item">
-                            <button type="button" class="@($"nav-link {FavoritedState}")" onclick="@DisplayFavoritesAsync">Favorited Posts</button>
+                            <button type="button" class="@($"nav-link {FavoritedState}")" @onclick="@DisplayFavoritesAsync">Favorited Posts</button>
                         </li>
                     </ul>
                 </div>
                 <ArticleList Articles=@articles />
-                <Pagination TotalArticles=@articlesCount PageSize="10" bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
+                <Pagination TotalArticles=@articlesCount PageSize="10" @bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
             </div>
         </div>
     </div>
@@ -72,7 +71,7 @@
     private string FavoritedState => selectedTab == SelectedTab.FavoritedPosts ? "active" : "";
     private string PostsState => selectedTab == SelectedTab.MyPosts ? "active" : "";
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         await DisplayProfileAsync();
         await DisplayArticlesAsync();

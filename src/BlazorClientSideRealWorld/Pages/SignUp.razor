@@ -1,7 +1,6 @@
 ﻿@page "/signup"
-@using BlazorClientSideRealWorld.Models
-@using BlazorClientSideRealWorld.Services
-@inject IUriHelper uriHelper
+
+@inject NavigationManager uriHelper
 @inject UserService userApi
 
 <div class="auth-page">
@@ -15,15 +14,15 @@
                 <ErrorMessages Errors=@errors />
                 <form>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="text" placeholder="Your Name" bind="@userCredentials.Username" />
+                        <input class="form-control form-control-lg" type="text" placeholder="Your Name" @bind="@userCredentials.Username" />
                     </fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="email" placeholder="Email" bind="@userCredentials.Email" />
+                        <input class="form-control form-control-lg" type="email" placeholder="Email" @bind="@userCredentials.Email" />
                     </fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="password" placeholder="Password" bind="@userCredentials.Password" />
+                        <input class="form-control form-control-lg" type="password" placeholder="Password" @bind="@userCredentials.Password" />
                     </fieldset>
-                    <button class="btn btn-lg btn-primary pull-xs-right" type="button" onclick="@Submit">
+                    <button class="btn btn-lg btn-primary pull-xs-right" type="button" @onclick="@Submit">
                         Sign up
                     </button>
                 </form>

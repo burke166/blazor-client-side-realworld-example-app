@@ -1,11 +1,9 @@
 ﻿@page "/settings"
 @implements IDisposable
-@using System
-@using BlazorClientSideRealWorld.Models
-@using BlazorClientSideRealWorld.Services
+
 @inject StateService state
 @inject UserService userApi
-@inject IUriHelper uriHelper
+@inject NavigationManager uriHelper
 
 <div class="settings-page">
     <div class="container page">
@@ -16,21 +14,21 @@
                 <form>
                     <fieldset>
                         <fieldset class="form-group">
-                            <input class="form-control" type="text" placeholder="URL of profile picture" bind="@(userModel.Image)" />
+                            <input class="form-control" type="text" placeholder="URL of profile picture" @bind="@(userModel.Image)" />
                         </fieldset>
                         <fieldset class="form-group">
-                            <input class="form-control form-control-lg" type="text" placeholder="Your Name" bind="@(userModel.Username)" />
+                            <input class="form-control form-control-lg" type="text" placeholder="Your Name" @bind="@(userModel.Username)" />
                         </fieldset>
                         <fieldset class="form-group">
-                            <textarea class="form-control form-control-lg" rows="8" placeholder="Short bio about you" bind="@(userModel.Bio)">@userModel.Bio</textarea>
+                            <textarea class="form-control form-control-lg" rows="8" placeholder="Short bio about you" @bind="@(userModel.Bio)">@userModel.Bio</textarea>
                         </fieldset>
                         <fieldset class="form-group">
-                            <input class="form-control form-control-lg" type="email" placeholder="Email" bind="@(userModel.Email)" />
+                            <input class="form-control form-control-lg" type="email" placeholder="Email" @bind="@(userModel.Email)" />
                         </fieldset>
                         <fieldset class="form-group">
-                            <input class="form-control form-control-lg" type="password" placeholder="Password" bind="@(userCredentials.Password)" />
+                            <input class="form-control form-control-lg" type="password" placeholder="Password" @bind="@(userCredentials.Password)" />
                         </fieldset>
-                        <button class="btn btn-lg btn-primary pull-xs-right" type="button" onclick="@Submit">
+                        <button class="btn btn-lg btn-primary pull-xs-right" type="button" @onclick="@Submit">
                             Update Settings
                         </button>
                     </fieldset>
@@ -46,7 +44,7 @@
     UserCredentials userCredentials = new UserCredentials();
     ErrorsModel errors = new ErrorsModel();
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         state.OnUserChange += UserHasLoaded;
         UserHasLoaded();
