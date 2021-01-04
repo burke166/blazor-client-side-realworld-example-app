@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlSanitizer" Version="5.0.250-beta" />
+    <PackageReference Include="HtmlSanitizer" Version="5.0.372" />
     <PackageReference Include="Markdig" Version="0.17.1" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.0.0-preview9.19424.4" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.0.0-preview9.19424.4" PrivateAssets="all" />
