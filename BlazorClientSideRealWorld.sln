@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.28822.285
+VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorClientSideRealWorld", "src\BlazorClientSideRealWorld\BlazorClientSideRealWorld.csproj", "{41CCF17E-4FD1-4AC0-A777-D73F8CCA9B67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorClientSideRealWorld", "src\BlazorClientSideRealWorld\BlazorClientSideRealWorld.csproj", "{8EC0ED5A-CEE6-4DA6-BCE1-252257DD0A5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{41CCF17E-4FD1-4AC0-A777-D73F8CCA9B67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{41CCF17E-4FD1-4AC0-A777-D73F8CCA9B67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{41CCF17E-4FD1-4AC0-A777-D73F8CCA9B67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41CCF17E-4FD1-4AC0-A777-D73F8CCA9B67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EC0ED5A-CEE6-4DA6-BCE1-252257DD0A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EC0ED5A-CEE6-4DA6-BCE1-252257DD0A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EC0ED5A-CEE6-4DA6-BCE1-252257DD0A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EC0ED5A-CEE6-4DA6-BCE1-252257DD0A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {AF5BD4E4-2F36-49FD-97AB-2D6B59EA4C01}
+		SolutionGuid = {50698150-ED6A-44E4-B906-0A6C51D06AEB}
 	EndGlobalSection
 EndGlobal

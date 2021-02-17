@@ -45,7 +45,7 @@ namespace BlazorClientSideRealWorld.Services
         {
             return await QueryAsync(new Dictionary<string, string>
             {
-                {  "author", author },
+                { "author", author },
                 { "limit", "10" },
                 { "offset", offset.ToString() }
             });

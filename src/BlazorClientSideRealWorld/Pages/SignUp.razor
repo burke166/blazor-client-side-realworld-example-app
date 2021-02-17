@@ -1,6 +1,7 @@
 ﻿@page "/signup"
-
-@inject NavigationManager uriHelper
+@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@inject NavigationManager navigationManager
 @inject UserService userApi
 
 <div class="auth-page">
@@ -14,10 +15,10 @@
                 <ErrorMessages Errors=@errors />
                 <form>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="text" placeholder="Your Name" @bind="@userCredentials.Username" />
+                        <input class="form-control form-control-lg" type="text" placeholder="Your Name" @bind="userCredentials.Username" />
                     </fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="email" placeholder="Email" @bind="@userCredentials.Email" />
+                        <input class="form-control form-control-lg" type="email" placeholder="Email" @bind="userCredentials.Email" />
                     </fieldset>
                     <fieldset class="form-group">
                         <input class="form-control form-control-lg" type="password" placeholder="Password" @bind="@userCredentials.Password" />
@@ -41,7 +42,7 @@
 
         if (response != null && response.HasSuccessStatusCode)
         {
-            uriHelper.NavigateTo("/");
+            navigationManager.NavigateTo("/");
         }
         else
         {

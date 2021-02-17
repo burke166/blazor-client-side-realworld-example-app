@@ -1,15 +1,17 @@
 ﻿@page "/"
 @implements IDisposable
-
-@inject NavigationManager uriHelper
+@using BlazorClientSideRealWorld.Models;
+@using BlazorClientSideRealWorld.Services;
+@inject NavigationManager navigationManager
 @inject ArticlesService articlesApi
 @inject TagsService tagsApi
 @inject UserService userApi
 @inject StateService state
 @inject IJSRuntime js
+@inject IConsoleLogService console 
 
-    <div class="home-page">
-        @if (!state.IsSignedIn)
+<div class="home-page">
+    @if (!state.IsSignedIn)
     {
         <div class="banner">
             <div class="container">
@@ -18,33 +20,34 @@
             </div>
         </div>
     }
-        <div class="container page">
-            <div class="row">
-                <div class="col-md-9">
-                    <div class="feed-toggle">
-                        <ul class="nav nav-pills outline-active">
+    <div class="container page">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="feed-toggle">
+                    <ul class="nav nav-pills outline-active">
+                        <li class="nav-item">
+                            <a href="" class="@($"nav-link {FeedState}")" @onclick="YourFeedAsync">Your Feed</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="@($"nav-link {GlobalState}")" @onclick="GlobalFeedAsync">Global Feed</a>
+                        </li>
+                        @if (selectedTab == SelectedTab.Tag)
+                        {
                             <li class="nav-item">
-                                <a href="" class="@($"nav-link {FeedState}")" @onclick="@YourFeedAsync">Your Feed</a>
+                                <a class="nav-link active"><i class="ion-pound"></i> @selectedTag</a>
                             </li>
-                            <li class="nav-item">
-                                <a href="" class="@($"nav-link {GlobalState}")" @onclick="@GlobalFeedAsync">Global Feed</a>
-                            </li>
-                            @if (selectedTab == SelectedTab.Tag)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link active"><i class="ion-pound"></i> @selectedTag</a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                        }
+                    </ul>
                     <ArticleList Articles=@articles />
-                    <Pagination TotalArticles=@articlesCount PageSize="10" @bind-CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
                 </div>
-                <div class="col-md-3">
-                    <div class="sidebar">
-                        <p>Popular Tags</p>
-                        <div class="tag-list">
-                            @if (tags == null)
+
+                <Pagination TotalArticles=@articlesCount PageSize="10" CurrentPage=@currentPage OnPageClicked="@(e => SetPage(e))" />
+            </div>
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <p>Popular Tags</p>
+                    <div class="tag-list">
+                        @if (tags == null)
                         {
                             <text>Loading tags...</text>
                         }
@@ -52,42 +55,55 @@
                         {
                             foreach (var tag in tags)
                             {
-                            <a href="" class="tag-pill tag-default" @onclick="@(() => SelectTag(tag))">@tag</a>
+                                <a href="" class="tag-pill tag-default" @onclick="@(e => SelectTag(tag))">@tag</a>
                             }
                         }
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 @functions {
-        IEnumerable<ArticleModel> articles;
-        IEnumerable<string> tags;
-        int articlesCount;
-        int currentPage = 1;
-        SelectedTab selectedTab;
-        string selectedTag;
+    IEnumerable<ArticleModel> articles;
+    IEnumerable<string> tags;
+    int articlesCount;
+    int currentPage = 1;
+    SelectedTab selectedTab;
+    string selectedTag;
 
-        string FeedState
+    string FeedState
     {
-            get
+        get
         {
-                if (!state.IsSignedIn) { return "disabled" ; }
-                if (selectedTab == SelectedTab.Feed) { return "active"; }
-                return "";
-            }
+            if (!state.IsSignedIn) { return "disabled"; }
+            if (selectedTab == SelectedTab.Feed) { return "active"; }
+            return "";
         }
+    }
 
-        string GlobalState => selectedTab == SelectedTab.Global ? "active" : "";
+    string GlobalState => selectedTab == SelectedTab.Global ? "active" : "";
+
 
     protected override async Task OnInitializedAsync()
     {
         state.OnUserChange += Update;
         await GlobalFeedAsync();
-        tags = await tagsApi.GetAllAsync();
+        await GetTagsAsync();
     }
+
+    /*
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            state.OnUserChange += Update;
+            await GlobalFeedAsync();
+            await GetTagsAsync();
+        }
+    }
+    */
 
     public void Dispose()
     {
@@ -105,6 +121,7 @@
         {
             articles = response.Value?.Articles;
             articlesCount = response.Value?.ArticlesCount ?? 0;
+
             if (scrollToTop)
             {
                 await js.InvokeAsync<bool>("RealWorld.scrollToTop");
@@ -114,11 +131,18 @@
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
+            }
+            else
+            {
+                await js.InvokeAsync<bool>("RealWorld.consoleLog", new string[]
+                {
+                    response.Errors.Other.FirstOrDefault()
+                });
             }
         }
     }
@@ -135,6 +159,11 @@
         selectedTab = SelectedTab.Global;
         var response = await articlesApi.GetArticlesAsync(0);
         await DisplayResponseAsync(response, false);
+    }
+
+    async Task GetTagsAsync()
+    {
+        tags = await tagsApi.GetAllAsync();
     }
 
     async Task SelectTag(string tag)

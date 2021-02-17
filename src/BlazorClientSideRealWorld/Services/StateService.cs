@@ -32,9 +32,13 @@ namespace BlazorClientSideRealWorld.Services
                 User = user;
 
                 if (newToken != null)
+                {
                     api.SetToken(newToken);
+                }
                 else
+                {
                     api.ClearToken();
+                }
 
                 NotifyUserChanged();
             }

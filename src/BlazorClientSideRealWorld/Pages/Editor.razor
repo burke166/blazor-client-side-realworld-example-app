@@ -1,7 +1,9 @@
-﻿@page "/editor"
+﻿@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@page "/editor"
 @page "/editor/{Slug}"
 @inject ArticlesService articlesApi
-@inject NavigationManager uriHelper
+@inject NavigationManager navigationManager
 
 @if (article != null)
 {
@@ -14,18 +16,18 @@
                     <form>
                         <fieldset>
                             <fieldset class="form-group">
-                                <input type="text" class="form-control form-control-lg" placeholder="Article Title" @bind="@article.Title" />
+                                <input type="text" class="form-control form-control-lg" placeholder="Article Title" @bind="article.Title" />
                             </fieldset>
                             <fieldset class="form-group">
-                                <input type="text" class="form-control" placeholder="What's this article about?" @bind="@article.Description" />
+                                <input type="text" class="form-control" placeholder="What's this article about?" @bind="article.Description" />
                             </fieldset>
                             <fieldset class="form-group">
-                                <textarea class="form-control" rows="8" placeholder="Write your article (in markdown)" @bind="@article.Body">@article.Body</textarea>
+                                <textarea class="form-control" rows="8" placeholder="Write your article (in markdown)" @bind="article.Body">@article.Body</textarea>
                             </fieldset>
                             <fieldset class="form-group">
-                                <input type="text" class="form-control" placeholder="Enter tags" @bind="@tagString" /><div class="tag-list"></div>
+                                <input type="text" class="form-control" placeholder="Enter tags" @bind="tagString" /><div class="tag-list"></div>
                             </fieldset>
-                            <button class="btn btn-lg pull-xs-right btn-primary" type="button" @onclick="@Submit">
+                            <button class="btn btn-lg pull-xs-right btn-primary" type="button" @onclick="Submit">
                                 Publish Article
                             </button>
                         </fieldset>
@@ -69,11 +71,11 @@
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
         }
     }
@@ -88,18 +90,18 @@
             var postedArticle = response.Value?.Article;
             if (postedArticle != null)
             {
-                uriHelper.NavigateTo($"/article/{postedArticle.Slug}");
+                navigationManager.NavigateTo($"/article/{postedArticle.Slug}");
             }
         }
         else
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
 
             if (response.Errors != null)

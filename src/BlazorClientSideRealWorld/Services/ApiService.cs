@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Text.Json;
 using BlazorClientSideRealWorld.Models;
 
 namespace BlazorClientSideRealWorld.Services
@@ -35,14 +35,14 @@ namespace BlazorClientSideRealWorld.Services
         public async Task<ApiResponse<T>> GetAsync<T>(string Path, IDictionary<string, string> Params = null)
         {
             HttpResponseMessage response = await httpClient.GetAsync(BuildUri(Path, Params));
-            
+
             return await ApiResponse<T>.CreateAsync(response);
         }
 
         public async Task<ApiResponse<T>> PutAsync<T>(string Path, IDictionary<string, string> Params, object Value = null)
         {
             if (Value == null) Value = string.Empty;
-            string valueString = JsonConvert.SerializeObject(Value);
+            string valueString = JsonSerializer.Serialize(Value);
             StringContent content = new StringContent(valueString, System.Text.Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await httpClient.PutAsync(BuildUri(Path, Params), content);
@@ -58,11 +58,11 @@ namespace BlazorClientSideRealWorld.Services
         public async Task<ApiResponse<T>> PostAsync<T>(string Path, IDictionary<string, string> Params, object Value = null)
         {
             if (Value == null) Value = string.Empty;
-            string valueString = JsonConvert.SerializeObject(Value);
+            string valueString = JsonSerializer.Serialize(Value);
             StringContent content = new StringContent(valueString, System.Text.Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await httpClient.PostAsync(BuildUri(Path, Params), content);
-            
+
             return await ApiResponse<T>.CreateAsync(response);
         }
 
@@ -84,7 +84,7 @@ namespace BlazorClientSideRealWorld.Services
 
             if (Params != null && Params.Count > 0)
             {
-                foreach(string key in Params.Keys)
+                foreach (string key in Params.Keys)
                 {
                     string queryPart = key + "=" + Params[key];
                     if (result.Query != null && result.Query.Length > 1)
@@ -109,7 +109,7 @@ namespace BlazorClientSideRealWorld.Services
         {
 
         }
-        
+
         private async Task<ApiResponse<T>> InitalizeAsync(HttpResponseMessage response)
         {
             StatusCode = response.StatusCode;
@@ -117,21 +117,40 @@ namespace BlazorClientSideRealWorld.Services
             Errors = new ErrorsModel();
             Value = default(T);
             var data = await response.Content.ReadAsStringAsync();
-            
+
             if (response.IsSuccessStatusCode)
             {
-                Value = JsonConvert.DeserializeObject<T>(data);
+                try
+                {
+                    Value = JsonSerializer.Deserialize<T>(data, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
             }
             else
             {
                 try
                 {
-                    ErrorResponse errors = JsonConvert.DeserializeObject<ErrorResponse>(data);
+                    ErrorResponse errors = JsonSerializer.Deserialize<ErrorResponse>(data, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
                     Errors = errors?.Errors;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Console.WriteLine(data);
+                    Errors = new ErrorsModel
+                    {
+                        Other = new string[]
+                        {
+                            data
+                        }
+                    };
                 }
             }
 

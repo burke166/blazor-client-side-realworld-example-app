@@ -1,16 +1,18 @@
-﻿@inject ArticlesService articlesApi
+﻿@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@inject ArticlesService articlesApi
 
 @if (Articles == null)
 {
-<div class="article-preview">
-    Loading articles...
-</div>
+    <div class="article-preview">
+        Loading articles...
+    </div>
 }
 else if (Articles.Count() == 0)
 {
-<div class="article-preview">
-    No articles here... yet.
-</div>
+    <div class="article-preview">
+        No articles here... yet.
+    </div>
 }
 else
 {
@@ -39,6 +41,7 @@ else
 }
 
 @functions {
+
     [Parameter]
     public IEnumerable<ArticleModel> Articles { get; set; }
 

@@ -1,6 +1,7 @@
-@implements IDisposable
-
-@inject NavigationManager uriHelper
+﻿@implements IDisposable
+@using BlazorClientSideRealWorld.Models;
+@using BlazorClientSideRealWorld.Services;
+@inject NavigationManager navigationManager
 @inject StateService state
 @inject UserService userApi
 
@@ -35,7 +36,7 @@
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/" @onclick="@SignOut">
+                    <a class="nav-link" href="/" @onclick="SignOut">
                         Sign out
                     </a>
                 </li>
@@ -67,10 +68,11 @@
         state.OnUserChange += Update;
         base.OnInitialized();
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await userApi.PopulateAsync();
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     public void Dispose()
@@ -87,6 +89,6 @@
     public async Task SignOut()
     {
         await userApi.SignOutAsync();
-        uriHelper.NavigateTo("/");
+        navigationManager.NavigateTo("/");
     }
 }

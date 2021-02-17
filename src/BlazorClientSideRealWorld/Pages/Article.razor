@@ -1,7 +1,8 @@
 ﻿@page "/article/{Slug}"
 @implements IDisposable
-
-@inject NavigationManager uriHelper
+@using BlazorClientSideRealWorld.Models
+@using BlazorClientSideRealWorld.Services
+@inject NavigationManager navigationManager
 @inject StateService state
 @inject CommentsService commentsApi
 @inject ArticlesService articlesApi
@@ -28,7 +29,7 @@
                             Edit Article
                         </a>
                         <text>&nbsp; &nbsp;</text>
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@DeleteArticle">
+                        <button class="btn btn-outline-danger btn-sm" @onclick="DeleteArticle">
                             <i class="ion-trash-a"></i>
                             &nbsp;
                             Delete Article
@@ -36,14 +37,14 @@
                     }
                     else
                     {
-                        <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" @onclick="@Follow">
+                        <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" @onclick="Follow">
                             <i class="ion-plus-round"></i>
                             &nbsp;
                             @(article.Author.Following ? "Unfollow" : "Follow")
                             @article.Author.Username
                         </button>
                         <text>&nbsp; &nbsp;</text>
-                        <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" @onclick="@Favorite">
+                        <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" @onclick="Favorite">
                             <i class="ion-heart"></i>
                             &nbsp;
                             @(article.Favorited ? "Unfavorite" : "Favorite")
@@ -73,14 +74,14 @@
                         <span class="date">@article.CreatedAt.ToLongDateString()</span>
                     </div>
 
-                    <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" @onclick="@Follow">
+                    <button class="@(article.Author.Following ? "btn btn-sm btn-secondary" : "btn btn-sm btn-outline-secondary")" type="button" @onclick="Follow">
                         <i class="ion-plus-round"></i>
                         &nbsp;
                         @(article.Author.Following ? "Unfollow" : "Follow")
                         @article.Author.Username
                     </button>
                     &nbsp;
-                    <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" @onclick="@Favorite">
+                    <button class="@(article.Favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary")" type="button" @onclick="Favorite">
                         <i class="ion-heart"></i>
                         &nbsp;
                         @(article.Favorited ? "Unfavorite" : "Favorite")
@@ -99,11 +100,11 @@
                     {
                         <form class="card comment-form">
                             <div class="card-block">
-                                <textarea class="form-control" placeholder="Write a comment..." rows="3" @bind="@newComment.Body">@newComment.Body</textarea>
+                                <textarea class="form-control" placeholder="Write a comment..." rows="3" @bind="newComment.Body">@newComment.Body</textarea>
                             </div>
                             <div class="card-footer">
                                 <img src="@state.User.Image" class="comment-author-img" />
-                                <button class="btn btn-sm btn-primary" type="button" @onclick="@Submit">
+                                <button class="btn btn-sm btn-primary" type="button" @onclick="Submit">
                                     Post Comment
                                 </button>
                             </div>
@@ -116,7 +117,7 @@
                         </p>
                     }
 
-                    @if (comments != null || comments.Count() > 0)
+                    @if (comments != null && comments.Count() > 0)
                     {
                         @foreach (CommentModel comment in comments)
                         {
@@ -182,11 +183,11 @@
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
         }
     }
@@ -201,11 +202,11 @@
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
         }
     }
@@ -213,7 +214,7 @@
     async Task DeleteArticle()
     {
         await articlesApi.DeleteAsync(Slug);
-        uriHelper.NavigateTo("/");
+        navigationManager.NavigateTo("/");
     }
 
     async Task Favorite()
@@ -264,11 +265,11 @@
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                uriHelper.NavigateTo("/signin");
+                navigationManager.NavigateTo("/signin");
             }
 
             if (response.Errors != null)

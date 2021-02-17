@@ -1,12 +1,12 @@
-﻿@if ((PageSize == 0 ? 1 : TotalArticles/PageSize) > 1)
+﻿@if ((PageSize == 0 ? 1 : TotalArticles / PageSize) > 1)
 {
     <ul class="pagination">
-        @for (int i = 1; i <= (PageSize == 0 ? 1 : TotalArticles/PageSize); i++)
+        @for (int i = 1; i <= (PageSize == 0 ? 1 : TotalArticles / PageSize); i++)
         {
             var buttonNumber = i;
 
             <li class="@(buttonNumber == CurrentPage ? "page-item active" : "page-item")">
-                <button type="button" class="page-link" @onclick="@(async () => await ChangePageAsync(buttonNumber))">@buttonNumber</button>
+                <button type="button" class="page-link" @onclick="@(e => ChangePageAsync(buttonNumber))">@buttonNumber</button>
             </li>
         }
     </ul>
@@ -27,7 +27,7 @@
 
     [Parameter]
     public EventCallback<int> OnPageClicked { get; set; }
-        
+
     private async Task ChangePageAsync(int page)
     {
         Console.WriteLine("Change page to " + page.ToString());
@@ -44,14 +44,14 @@
         {
             PageSize = 10;
         }
-        
+
         if (CurrentPage < 1)
         {
             CurrentPage = 1;
         }
-        else if (CurrentPage > (PageSize == 0 ? 1 : TotalArticles/PageSize))
+        else if (CurrentPage > (PageSize == 0 ? 1 : TotalArticles / PageSize))
         {
-            CurrentPage = (PageSize == 0 ? 1 : TotalArticles/PageSize);
+            CurrentPage = (PageSize == 0 ? 1 : TotalArticles / PageSize);
         }
     }
 }

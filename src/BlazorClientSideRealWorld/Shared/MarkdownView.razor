@@ -28,7 +28,7 @@
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var html = Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+            var html = Markdig.Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
             var sanitizedHtml = Sanitizer.Sanitize(html);
             return new MarkupString(sanitizedHtml);
         }

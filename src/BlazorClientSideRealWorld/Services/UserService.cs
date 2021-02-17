@@ -8,7 +8,7 @@ namespace BlazorClientSideRealWorld.Services
         private readonly IJwtService jwtService;
         private readonly IApiService api;
         private readonly StateService state;
-        
+
         public UserService(IJwtService _jwtService, IApiService _api, StateService _state)
         {
             jwtService = _jwtService;
@@ -20,7 +20,8 @@ namespace BlazorClientSideRealWorld.Services
         {
             string token = await jwtService.GetTokenAsync();
 
-            if (!string.IsNullOrEmpty(token)) {
+            if (!string.IsNullOrEmpty(token))
+            {
                 api.SetToken(token);
                 var response = await api.GetAsync<UserResponse>("/user");
                 state.UpdateUser(response?.Value?.User ?? new UserModel());
